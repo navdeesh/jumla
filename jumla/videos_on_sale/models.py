@@ -48,6 +48,7 @@ class Pricing(models.Model):
 
 
 class Subscribed(models.Model):
+    subscribed_id = models.AutoField(primary_key=True)
     user_foreign_key = models.ForeignKey('Users', on_delete=models.CASCADE)
     content_foreign_key = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
     subscribed_amount = models.IntegerField(max_length=6)
@@ -73,4 +74,10 @@ class Subscribed(models.Model):
             return True
         else:
             return False
+
+class AddOns(models.Model):
+    addons_for_content_id = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
+    addons_content_id = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
+    addon_price = models.IntegerField(max_length=6);
+    addon_duration = models.CharField(max_length=10);
 
