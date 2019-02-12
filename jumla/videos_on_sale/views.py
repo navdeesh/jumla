@@ -205,5 +205,61 @@ def subscribe(request):
         }, status=405)
 
 
+def get_content_by_id(content_foreign_key):
+    content = ContentEntity.objects.get(pk=content_foreign_key)
+    if content.video_pack_foreign_key:
+        video_pack_id = content.__dict__['video_pack_foreign_key_id']
+        video_pack = VideoPackEntity.objects.get(pk=video_pack_id)
+        videos_array = get_videos_array(video_pack_id)
+        ret_dict = {}
+        ret_dict['type'] = 'video_pack'
+        ret_dict['video_pack'] = {
+            'name': video_pack.video_pack_name,
+            'videos': videos_array
+        }
+    else:
+        video_id = content.__dict__['video_foreign_key_id']
+        video = VideoEntity.objects.get(pk=video_id).__dict__
+        del video['_state']
+        ret_dict = {}
+        ret_dict['type'] = 'video'
+        ret_dict['video'] = video
+    return ret_dict
+    
+
+def my_subscriptions(request):
+    if request.method == "GET":
+        
+        if "logged_in" in request.session:
+            
+            user_id = int(request.session['user_id'])
+            subscriptions = Subscribed.objects.filter(user_foreign_key=user_id)
+            ret_array = []
+            for s in subscriptions:
+                s = s.__dict__
+                del s['_state']
+                content_foreign_key = s['content_foreign_key_id']
+                s['content'] = get_content_by_id(content_foreign_key)
+                ret_array.append(s)
+            return JsonResponse({
+                'success': True,
+                'message': 'Success',
+                'data': ret_array
+            }, status=200)
+        else:
+            
+            return JsonResponse({
+                'success': False,
+                'message': 'You need to login first'
+            }, status=401)
+    
+    else:
+        
+        return JsonResponse({
+            'success': False,
+            'message': 'Only get requests allowed'
+        }, status=405)
+
+
 
 
