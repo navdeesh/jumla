@@ -35,5 +35,5 @@ class VideoPackEntity(models.Model):
 class VideosInPack(models.Model):
     videos_in_pack_id = models.AutoField(primary_key=True)
     video_entity_foreign_key = models.ForeignKey('VideoEntity', on_delete=models.CASCADE)
-    video_pack_entity_foreign_key = models.ForeignKey('VideoEntity', on_delete=models.CASCADE)
+    video_pack_entity_foreign_key = models.ForeignKey('VideoPackEntity', on_delete=models.CASCADE)
 
