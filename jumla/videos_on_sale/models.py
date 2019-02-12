@@ -30,7 +30,6 @@ class GenreEntity(models.Model):
 class VideoPackEntity(models.Model):
     video_pack_id = models.AutoField(primary_key=True)
     video_pack_name = models.CharField(max_length=100)
-    video_pack_content_foreign_key = models.ForeignKey('VideosInPack', on_delete=models.CASCADE)
 
 class VideosInPack(models.Model):
     videos_in_pack_id = models.AutoField(primary_key=True)
