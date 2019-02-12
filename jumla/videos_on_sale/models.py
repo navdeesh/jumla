@@ -52,7 +52,7 @@ class Subscribed(models.Model):
     content_foreign_key = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
     subscribed_amount = models.IntegerField(max_length=6)
     subscribed_duration = models.CharField(max_length=10)
-    subscribed_start_date = models.DateTimeField(default=datetime.now, blank=True)
+    subscribed_start_date = models.DateTimeField(default=datetime.datetime.now, blank=True)
 
     def is_subscription_expired(self):
         if(str.lower(self.subscribed_duration)== "daily" and
