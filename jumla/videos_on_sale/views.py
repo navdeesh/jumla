@@ -74,6 +74,21 @@ def logout(request):
 
 
 
+def get_content(request):
+    if request.method == "POST":
+        if "logged_in" in request.session:
+            user_id = int(request.session['user_id'])
+            
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'You need to login first'
+            })
+    else:
+        return JsonResponse({
+            'success': False,
+            'message': 'Only post requests allowed'
+        }, status=405)
 
 
 
