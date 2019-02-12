@@ -262,4 +262,38 @@ def my_subscriptions(request):
 
 
 
+def get_add_ons(request, **kwargs):
+    if request.method == "GET":
+
+        if "logged_in" in request.session:
+            
+            subscribed_content_id = kwargs['id']
+            duration = kwargs['duration']
+            add_ons = AddOns.objects.filter(addons_for_content_id=subscribed_content_id).filter(addon_duration=duration)
+            ret_array = []
+            for a in add_ons:
+                a = a.__dict__
+                if a['addons_content_id'] != subscribed_content_id:
+                    del a['_state']
+                    a['content'] = get_content_by_id(a['addons_content_id'])
+                    ret_array.append(a)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Success',
+                'data': ret_array
+            }, status=200)
+
+
+    else:
+
+        return JsonResponse({
+            'success': False,
+            'message': 'Only GET requests allowed'
+        }, status=405)
+
+
+
+
+
 

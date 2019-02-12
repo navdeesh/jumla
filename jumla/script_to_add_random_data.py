@@ -79,8 +79,9 @@ for x in range(1, 100):
 
 
 ######## VideosInPack #####
+print("Creating videos in pack table, it will take some time")
 
-for x in range(1, 100):
+for x in range(1, 5000):
     videosInPack = VideosInPack(videos_in_pack_id=x + 100, video_entity_foreign_key=VideoEntity.objects.get(pk=random.randint(102, 199)),
                                   video_pack_entity_foreign_key=VideoPackEntity.objects.get(pk=random.randint(102, 199)))
     videosInPack.save()

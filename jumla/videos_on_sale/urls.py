@@ -9,4 +9,5 @@ urlpatterns = [
     path('get_content', views.get_content, name='get_content'),
     path('subscribe', views.subscribe, name='subscribe'),
     path('my_subscriptions', views.my_subscriptions, name='my_subscriptions'),
+    path('get_add_ons/<int:id>/<str:duration>', views.get_add_ons, name='get_add_ons'),
 ]
