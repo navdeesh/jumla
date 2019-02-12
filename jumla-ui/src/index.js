@@ -5,13 +5,14 @@ import Callback from './components/Callback';
 import registerServiceWorker from './registerServiceWorker';
 import { Router, Route, browserHistory } from 'react-router';
 import { requireAuth } from './utils/AuthService';
+import Login from './components/Login';
 
 const Root = () => {
   return (
     <div className="container">
       <Router history={browserHistory}>
         <Route path="/" component={Display}/>
-        <Route path="/callback" component={Callback} />
+        <Route path="/Login" component={Login}/>
       </Router>
     </div>
   )
