@@ -86,7 +86,7 @@ def get_videos_array(video_pack_id):
 
 
 def get_content(request):
-    if request.method == "POST":
+    if request.method == "GET":
         if "logged_in" in request.session:
             user_id = int(request.session['user_id'])
             prices = Pricing.objects.filter(user_foreign_key=user_id)
@@ -127,7 +127,7 @@ def get_content(request):
     else:
         return JsonResponse({
             'success': False,
-            'message': 'Only post requests allowed'
+            'message': 'Only get requests allowed'
         }, status=405)
 
 
