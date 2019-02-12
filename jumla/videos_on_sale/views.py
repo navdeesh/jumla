@@ -19,6 +19,8 @@ def sign_in(request):
             password = request_body['password']
             user = Users.objects.get(user_email=email)
             if(user.user_password == password):
+                request.session['user_id'] = user.user_id
+                request.session['logged_in'] = "yes"
                 return JsonResponse({
                     'success': True,
                     'message': 'Login Successful'
@@ -52,4 +54,35 @@ def sign_in(request):
             'success': False,
             'message': 'Only post requests allowed'
         }, status=405)
+
+
+
+def logout(request):
+    if("logged_in" in request.session):
+        del request.session["logged_in"]
+        del request.session["user_id"]
+        return JsonResponse({
+            'success': True,
+            'message': 'Successfully logged out'            
+        }, status=200)
+    else:
+        return JsonResponse({
+            'success': False,
+            'message': 'You are not logged in'
+        }, status=401)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
