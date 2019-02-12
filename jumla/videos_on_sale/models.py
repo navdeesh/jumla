@@ -40,17 +40,17 @@ class VideosInPack(models.Model):
 class Pricing(models.Model):
     user_foreign_key = models.ForeignKey('Users', on_delete=models.CASCADE)
     content_foreign_key = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
-    pricing_daily_basis = models.IntegerField(max_length=6);
-    pricing_weekly_basis = models.IntegerField(max_length=6);
-    pricing_monthly_basis = models.IntegerField(max_length=6);
-    pricing_yearly_basis = models.IntegerField(max_length=6);
+    pricing_daily_basis = models.IntegerField();
+    pricing_weekly_basis = models.IntegerField();
+    pricing_monthly_basis = models.IntegerField();
+    pricing_yearly_basis = models.IntegerField();
 
 
 class Subscribed(models.Model):
     subscribed_id = models.AutoField(primary_key=True)
     user_foreign_key = models.ForeignKey('Users', on_delete=models.CASCADE)
     content_foreign_key = models.ForeignKey('ContentEntity', on_delete=models.CASCADE)
-    subscribed_amount = models.IntegerField(max_length=6)
+    subscribed_amount = models.IntegerField()
     subscribed_duration = models.CharField(max_length=10)
     subscribed_start_date = models.DateTimeField(default=datetime.datetime.now, blank=True)
 
