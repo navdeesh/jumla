@@ -11,8 +11,8 @@ class Users(models.Model):
 
 class ContentEntity(models.Model):
     content_entity_id = models.AutoField(primary_key=True)
-    video_pack_foreign_key = models.ForeignKey('VideoPackEntity', on_delete=models.CASCADE)
-    video_foreign_key = models.ForeignKey('VideoEntity', on_delete=models.CASCADE)
+    video_pack_foreign_key = models.ForeignKey('VideoPackEntity', on_delete=models.CASCADE, null=True, blank=True)
+    video_foreign_key = models.ForeignKey('VideoEntity', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class VideoEntity(models.Model):
