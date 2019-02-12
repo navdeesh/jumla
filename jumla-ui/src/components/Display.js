@@ -4,15 +4,27 @@ import Nav from './Nav';
 import { isLoggedIn } from '../utils/AuthService';
 import { CloudinaryContext, Transformation, Video } from 'cloudinary-react';
 import axios from 'axios';
+import SearchField from "react-search-field";
 
 class Display extends Component {
 
-  state = { videos: [] };
+  constructor(props) {
+    super(props);
+
+    this.state = { 
+        videos: [], 
+        res:[] 
+    };
+
+    this.onChange = this.onChange.bind(this);
+    this.getVideos = this.getVideos.bind(this);
+  }
 
   getVideos() {
     axios.get('http://res.cloudinary.com/unicodeveloper/video/list/miniflix.json')
           .then(res => {
             console.log(res.data.resources);
+            this.setState({res: res.data.resources});
             this.setState({ videos: res.data.resources.splice(0,12)});
     });
   }
@@ -21,14 +33,34 @@ class Display extends Component {
     this.getVideos();
   }
 
+
+  onChange() {
+    console.log(this);
+    axios.get('http://res.cloudinary.com/unicodeveloper/video/list/miniflix.json')
+    .then(res => {
+      console.log(res.data.resources);
+      this.setState({res: res.data.resources});
+      this.setState({ videos: res.data.resources.splice(0,3)});
+});
+  }
+
   render() {
 
     const { videos }  = this.state;
+
+    const self = this;
 
     return (
       <div>
         <Nav />
         <h3 className="text-center"> Latest Videos on Jumla </h3>
+          <SearchField
+           placeholder="Search..."
+           onChange={this.onChange}
+           searchText=""
+           classNames="test-class"
+           fewer = {this.getfewerVideos}
+          />
         <hr/>
 
         <div className="col-sm-12">
