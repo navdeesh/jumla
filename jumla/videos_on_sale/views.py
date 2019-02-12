@@ -22,30 +22,34 @@ def sign_in(request):
                 return JsonResponse({
                     'success': True,
                     'message': 'Login Successful'
-                })
+                }, status=200)
             else:
                 return JsonResponse({
                     'success': False,
                     'message': 'Wrong Password'
-                })
+                }, status=401)
+
         except ValueError:
             return JsonResponse({
                 'success': False,
                 'message': 'JSON parse error'
-            })
+            }, status=400)
+
         except KeyError:
             return JsonResponse({
                 'success': False,
                 'message': 'Please supply email and password in request body'
-            })
+            }, status=401)
+
         except ObjectDoesNotExist:
             return JsonResponse({
                 'success': False,
                 'message': 'User does not exists'
-            })
+            }, status=401)
+    
     else:
         return JsonResponse({
             'success': False,
             'message': 'Only post requests allowed'
-        })
+        }, status=405)
 
