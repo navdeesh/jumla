@@ -5,6 +5,7 @@ import { isLoggedIn } from '../utils/AuthService';
 import { CloudinaryContext, Transformation, Video } from 'cloudinary-react';
 import axios from 'axios';
 import SearchField from "react-search-field";
+import YouTube from 'react-youtube';
 
 class Display extends Component {
 
@@ -18,6 +19,8 @@ class Display extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.getVideos = this.getVideos.bind(this);
+    this.apiBaseUrl = "http://localhost:8000/jumla/";
+
   }
 
   getVideos() {
@@ -27,6 +30,11 @@ class Display extends Component {
             this.setState({res: res.data.resources});
             this.setState({ videos: res.data.resources.splice(0,12)});
     });
+
+   axios.get('http://localhost:8000/jumla/get_content')
+        .then(res => {
+          console.log(res);
+        })
   }
 
   componentDidMount() {
@@ -50,6 +58,14 @@ class Display extends Component {
 
     const self = this;
 
+    const opts = {
+      height: '390',
+      width: '640',
+      playerVars: { 
+        autoplay: 1
+      }
+    };
+
     return (
       <div>
         <Nav />
@@ -63,6 +79,18 @@ class Display extends Component {
           />
         <hr/>
 
+        <YouTube
+          videoId='2g811Eo7K8U'                 // defaults -> null
+          opts={obj}                        // defaults -> {}
+          onReady={func}                    // defaults -> noop
+          onPlay={func}                     // defaults -> noop
+          onPause={func}                    // defaults -> noop
+          onEnd={func}                      // defaults -> noop
+          onError={func}                    // defaults -> noop
+          onStateChange={func}              // defaults -> noop
+          onPlaybackRateChange={func}       // defaults -> noop
+          onPlaybackQualityChange={func}    // defaults -> noop
+        />
         <div className="col-sm-12">
           <CloudinaryContext cloudName="unicodeveloper">
             { videos.map((data, index) => (

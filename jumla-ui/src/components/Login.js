@@ -18,11 +18,20 @@ constructor(props){
   var login_this = this;
 
   this.routeChange = this.routeChange.bind(this);
+  this.handleClick = this.handleClick.bind(this);
+
  }
 
  routeChange() {
     let path = `/`;
-    this.props.history.push(path);
+    console.log("Reached routeChange");
+    console.log(this);
+    // this.props.history.push(path);
+    window.location.push('google.com');
+}
+
+handlePageChange() {
+  window.location.hash = "./";
 }
 
  handleClick(event){
@@ -35,15 +44,18 @@ constructor(props){
     "password":this.state.password
     }
 
-    axios.post(apiBaseUrl+'sign_in', payload)
+    axios(apiBaseUrl+'sign_in', {
+      data: payload,
+      method: "post",
+      withCredentials: true
+    })
     .then(function (response) {
 
-    console.log(response);
+    // console.log(response);
     if(response.status == 200){
-    console.log("reached here");
-    console.log("Login successfull");
-    console.log(self.props);
-    self.props.history.push('/');
+      console.log("Login successful");
+      // console.log(self);
+      self.handlePageChange();
     }
    
     else if(response.data.code == 204){
@@ -62,14 +74,19 @@ constructor(props){
     });
     }
 
+    componentDidMount() {
+      window.addEventListener('hashchange', this.handleRouteChange, false);
+    }
+
 render() {
     return (
       <div class="center">
-        <MuiThemeProvider>
+        {<MuiThemeProvider>
           <div>
           <AppBar
              title="Jumla Login"
            />
+           
            <TextField
              hintText="Enter your Username"
              floatingLabelText="Username"
@@ -85,7 +102,9 @@ render() {
              <br/>
              <RaisedButton label="Submit" primary={true} style={style} onClick={(event) => this.handleClick(event)}/>
          </div>
-         </MuiThemeProvider>
+         </MuiThemeProvider> }
+
+
       </div>
     );
   }
