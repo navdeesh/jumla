@@ -1,7 +1,5 @@
 from django.db import models
 
-from django.db import models
-
 class Users(models.Model):
     user_id = models.CharField(max_length=10)
     user_name = models.CharField(max_length=50)
