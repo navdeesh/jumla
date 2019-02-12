@@ -3,8 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 import json
 
-from videos_on_sale.models import Users, Pricing, ContentEntity, VideoEntity, VideosInPack, VideoPackEntity
-
+from videos_on_sale.models import *
 
 
 def index(request):
@@ -130,13 +129,80 @@ def get_content(request):
             'message': 'Only get requests allowed'
         }, status=405)
 
+def get_subscribed_amount(content_id, user_id, duration):
+    Pricing.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id)
+    _dict = Pricing.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id).first().__dict__
+    if(duration == 'daily'):
+        return _dict['pricing_daily_basis']
+    elif(duration == 'weekly'):
+        return _dict['pricing_weekly_basis']
+    elif(duration == 'monthly'):
+        return _dict['pricing_monthly_basis']
+    else:
+        return _dict['pricing_yearly_basis']
 
 
+def subscribe(request):
+    if request.method == "POST":
+        
+        if "logged_in" in request.session:
+            
+            user_id = int(request.session['user_id'])
+            
+            try:
+                request_body=json.loads(request.body)
+                content_id = int(request_body['content_id'])
+                duration = request_body['duration']
+                subscribed_amount = get_subscribed_amount(content_id, user_id, duration)
+                Subscribed(
+                    user_foreign_key = Users.objects.get(pk=user_id),
+                    content_foreign_key = ContentEntity.objects.get(pk=content_id),
+                    subscribed_amount = subscribed_amount,
+                    subscribed_duration = duration
+                ).save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Successfully Subscribed'
+                }, status=200)
+            
+            except ValueError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'JSON parse error'
+                }, status=400)
+            
+            except KeyError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please supply email and password in request body'
+                }, status=401)
 
-
-
-
-
+            except ObjectDoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'User does not exists'
+                }, status=401)
+            
+            except:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Unknown error'
+                }, status=500)
+        
+        else:
+            
+            return JsonResponse({
+                'success': False,
+                'message': 'You need to login first'
+            }, status=401)
+    
+    else:
+        
+        return JsonResponse({
+            'success': False,
+            'message': 'Only post requests allowed'
+        }, status=405)
 
 
 
