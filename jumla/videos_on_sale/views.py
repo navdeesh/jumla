@@ -1,14 +1,120 @@
+from django.template import Template, Context
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import redirect
 
 import json
 
 from videos_on_sale.models import *
 
+import datetime as dtt
+from datetime import datetime
+
+import pytz
+
+utc=pytz.UTC
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if("logged_in" in request.session):
+        return redirect('/jumla/home')
+    return redirect('/jumla/login')
 
+def do_logout(request):
+    if("logged_in" in request.session):
+        del request.session["logged_in"]
+        del request.session["user_id"]
+    return redirect('/jumla/')
+
+    
+def login(request):
+    if("logged_in" in request.session):
+        return redirect('/jumla/home')
+    if request.method == "POST":
+        try:
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            user = Users.objects.get(user_email=email)
+            if(user.user_password == password):
+                request.session['user_id'] = user.user_id
+                request.session['logged_in'] = "yes"
+                return redirect('/jumla/home')
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Wrong Password'
+                }, status=401)
+
+        except ValueError:
+            return JsonResponse({
+                'success': False,
+                'message': 'JSON parse error'
+            }, status=400)
+
+        except KeyError:
+            return JsonResponse({
+                'success': False,
+                'message': 'Please supply email and password in request body'
+            }, status=401)
+
+        except ObjectDoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'User does not exists'
+            }, status=401)
+    
+    else:
+        fp = open('templates/login.html')
+        t = Template(fp.read())
+        fp.close()
+        html = t.render(Context({}))
+        return HttpResponse(html)
+
+
+
+def home(request):
+    if(not "logged_in" in request.session):
+        return redirect('/jumla/login')
+    fp = open('templates/home.html')
+    t = Template(fp.read())
+    fp.close()
+    html = t.render(Context({}))
+    return HttpResponse(html)
+
+def show_content(request, **kwargs):
+    if request.method == "GET":
+        if "logged_in" in request.session:
+            video_or_videopack = kwargs['video_or_videopack']
+            content_id = kwargs['content_id']
+            user_id = int(request.session['user_id'])
+            prices = Pricing.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id).first()
+            ret_dict = prices.__dict__
+            del ret_dict['_state']
+            if(video_or_videopack == "video_pack"):
+                video_pack_id = content_id
+                video_pack = VideoPackEntity.objects.get(pk=video_pack_id)
+                videos_array = get_videos_array(video_pack_id)
+                ret_dict['type'] = 'video_pack'
+                ret_dict['video_pack'] = {
+                    'name': video_pack.video_pack_name,
+                    'videos': videos_array
+                }
+            else:
+                video_id = content_id
+                video = VideoEntity.objects.get(pk=video_id).__dict__
+                del video['_state']
+                ret_dict['type'] = 'video'
+                ret_dict['video'] = video
+            for key, value in ret_dict.items() :
+                print (key)
+            fp = open('templates/show_content.html')
+            t = Template(fp.read())
+            fp.close()
+            html = t.render(Context({"back_data": ret_dict}))
+            return HttpResponse(html)
+        else:
+            return redirect("/jumla/")
+    else:
+        return redirect("/jumla/")
 
 def sign_in(request):
     if request.method == "POST":
@@ -141,6 +247,14 @@ def get_subscribed_amount(content_id, user_id, duration):
     else:
         return _dict['pricing_yearly_basis']
 
+def my_subscriptions_page(request):
+    if(not "logged_in" in request.session):
+        return redirect('/jumla/login')
+    fp = open('templates/my_subscriptions_page.html')
+    t = Template(fp.read())
+    fp.close()
+    html = t.render(Context({}))
+    return HttpResponse(html)
 
 def subscribe(request):
     if request.method == "POST":
@@ -150,9 +264,8 @@ def subscribe(request):
             user_id = int(request.session['user_id'])
             
             try:
-                request_body=json.loads(request.body)
-                content_id = int(request_body['content_id'])
-                duration = request_body['duration']
+                content_id = int(request.POST.get('content_id'))
+                duration = request.POST.get('duration')
                 subscribed_amount = get_subscribed_amount(content_id, user_id, duration)
                 Subscribed(
                     user_foreign_key = Users.objects.get(pk=user_id),
@@ -161,10 +274,7 @@ def subscribe(request):
                     subscribed_duration = duration
                 ).save()
                 
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Successfully Subscribed'
-                }, status=200)
+                return redirect("/jumla/my_subscriptions_page")
             
             except ValueError:
                 return JsonResponse({
@@ -240,6 +350,7 @@ def my_subscriptions(request):
                 del s['_state']
                 content_foreign_key = s['content_foreign_key_id']
                 s['content'] = get_content_by_id(content_foreign_key)
+                s['is_expired'] = is_subscription_expired(s)
                 ret_array.append(s)
             return JsonResponse({
                 'success': True,
@@ -294,6 +405,52 @@ def get_add_ons(request, **kwargs):
 
 
 
+def view_content(request, **kwargs):
+    if request.method == "GET":
+        if "logged_in" in request.session:
+            video_or_videopack = kwargs['video_or_videopack']
+            content_id = kwargs['content_id']
+            user_id = int(request.session['user_id'])
+            prices = Pricing.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id).first()
+            ret_dict = prices.__dict__
+            del ret_dict['_state']
+            if(video_or_videopack == "video_pack"):
+                video_pack_id = content_id
+                video_pack = VideoPackEntity.objects.get(pk=video_pack_id)
+                videos_array = get_videos_array(video_pack_id)
+                ret_dict['type'] = 'video_pack'
+                ret_dict['video_pack'] = {
+                    'name': video_pack.video_pack_name,
+                    'videos': videos_array
+                }
+            else:
+                video_id = content_id
+                video = VideoEntity.objects.get(pk=video_id).__dict__
+                del video['_state']
+                ret_dict['type'] = 'video'
+                ret_dict['video'] = video
+            for key, value in ret_dict.items() :
+                print (key)
+            fp = open('templates/view_content.html')
+            t = Template(fp.read())
+            fp.close()
+            html = t.render(Context({"back_data": ret_dict}))
+            return HttpResponse(html)
+        else:
+            return redirect("/jumla/")
+    else:
+        return redirect("/jumla/")
 
+def is_subscription_expired(self):
+    if(str.lower(self['subscribed_duration'])== "daily" and (self['subscribed_start_date']) < utc.localize(datetime.now()) < ((self['subscribed_start_date']) + dtt.timedelta(days=1) )):
+        return False
+    elif (str.lower(self['subscribed_duration'])== "weekly" and (self['subscribed_start_date']) < utc.localize(datetime.now()) < ((self['subscribed_start_date']) + dtt.timedelta(days=7) )):
+        return False
+    elif (str.lower(self['subscribed_duration']) == "month" and (self['subscribed_start_date']) < utc.localize(datetime.now()) < ((self['subscribed_start_date']) + dtt.timedelta(days=30) )):
+        return False
+    elif (str.lower(self['subscribed_duration']) == "yearly" and (self['subscribed_start_date']) < utc.localize(datetime.now()) < ((self['subscribed_start_date']) + dtt.timedelta(days=365) )):
+        return False
+    else:
+        return True
 
 

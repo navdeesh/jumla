@@ -1,0 +1,368 @@
+<style type="text/css">
+   html {
+         margin:0;
+         background: #333;
+         font-family: helvetica;
+         max-width:1920px;
+      }
+
+      body {
+         margin: 0;
+      }
+
+      #exampleText1 {
+         display: hidden;
+      }
+
+      .container {
+      
+         width: 1005px;
+         height: 100%;
+         margin: 0 auto;
+         padding: 30px;
+      }
+
+      h1 {
+         margin: 0;
+         color:#bbb;
+         font-size:1.85em;
+      }
+
+      .examples {
+         text-align: center;
+         margin-left:15px;
+      }
+
+      .image:hover {
+         -webkit-transform: scale(1.35);
+         transform: scale(1.35);
+         opacity: .9;
+      }
+
+      .image {
+         -webkit-transition: all 0.7s ease;
+         transition: all 0.7s ease;
+         padding: 15px;
+         margin:auto;
+
+      }
+
+      /*#example1:hover {
+         opacity: .1;
+      }*/
+
+      span.text-content {
+         
+         color: white;
+         cursor: pointer;
+         display: table;
+         height: 150px;
+         left: 15px;
+         position: absolute;
+         top: 15px;
+         width: 280px;
+         opacity: 0;
+         -webkit-transition: opacity 500ms;
+         -moz-transition: opacity 500ms;
+         -o-transition: opacity 500ms;
+         transition: opacity 500ms;
+      }
+
+      span.text-content span {
+         display: table-cell;
+         text-align: center;
+         vertical-align: middle;
+      }
+
+      ul.img-list {
+         list-style-type: none;
+         margin: 0 auto;
+         padding: 0;
+         text-align: center;
+      }
+
+      ul.img-list li {
+         display: inline-block;
+         height: 150px;
+         margin: 0 1em 1em 0;
+         position: relative;
+         width: 280px;
+      }
+
+      ul.img-list li:hover span.text-content {
+         opacity: 1;
+         -webkit-transition: all 0.7s ease;
+         transition: all 0.7s ease;
+      }
+      a:link {
+          text-decoration: none;
+      }
+
+      .banner{
+         text-align:center;
+         font-weight:800;
+         padding-bottom:80px;
+      }
+      .sectionTitle{
+         padding-left:40px;
+         border-bottom:2px solid rgba(0, 0, 0, 0.2);
+         margin-bottom:20px;
+      }
+      li.image{
+         margin:auto;
+      }
+
+      .sidenav {
+          display: none;
+          height: 400px;
+          width: 100%;
+          
+          z-index: 6;
+          top: 306px;
+          position:relative;
+          color:#eee;
+          left:0;
+          position:absolute;
+          background: #555;
+          background-repeat: no-repeat;
+    background-size: 100% 100%;
+          overflow-x: hidden;
+          padding-top: 60px;
+      }
+
+      .sidenav a {
+          padding: 8px 8px 8px 32px;
+          text-decoration: none;
+          font-size: 25px;
+          color: #bbb;
+          display: block;
+          transition: 0.3s
+      }
+
+      .sidenav a:hover, .offcanvas a:focus{
+          color: #f1f1f1;
+      }
+
+      .sidenav .closebtn {
+          position: absolute;
+          top: 0px;
+          right: 25px;
+          font-size: 36px;
+          margin-left: 50px;
+      }
+
+      @media screen and (max-height: 450px) {
+        .sidenav {padding-top: 15px;}
+        .sidenav a {font-size: 18px;}
+      }
+      header{
+
+         width:100%;
+         padding-left:25%;
+         background:#222;
+         color:red;
+         height:40px;
+         padding-top:10px;
+         font-weight: 700;
+         font-size:1.5em;
+      }
+      p{
+         margin:0;
+      }
+      #row2{
+         position:relative;
+      }
+</style>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+
+<header>
+<p style="display: inline-block;">JUMLA</p>
+<div style="display: inline-block; text-align: right; padding-left: 50%">
+  <form action="/jumla/do_logout">
+    <input type="submit" name="LOGOUT" value="LOGOUT" style="cursor: pointer;">
+  </form>
+</div>
+</header>
+<div class="container" id="main-section-container">
+
+   <section id="row1">
+    <h1 class="sectionTitle">{{ back_data.video_pack.name }}</h1>
+    <h1 class="sectionTitle">{{ back_data.video.video_title }}</h1>
+    <div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <a href="#">Movie 1</a>
+  
+    </div>
+
+    <h4 style="color: white" class="sectionTitle">Subscribe to this {{ back_data.type }} only @</h4>
+    <div style="color: white">
+      <div>
+        Daily Subscription: {{ back_data.pricing_daily_basis }}
+        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
+          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
+          <input type="hidden" name="duration" value="daily">
+          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_daily_basis }}">
+        </form>
+
+      </div>
+      <br>
+      <div>
+        Weekly Subscription: {{ back_data.pricing_weekly_basis }}
+        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
+          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
+          <input type="hidden" name="duration" value="weekly">
+          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_weekly_basis }}">
+        </form>
+        
+      </div>
+<br>
+      <div>
+        Monthly Subscription: {{ back_data.pricing_monthly_basis }}
+        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
+          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
+          <input type="hidden" name="duration" value="monthly">
+          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_monthly_basis }}">
+        </form>
+
+      </div>
+<br>
+      <div>
+        Yearly Subscription: {{ back_data.pricing_yearly_basis }}
+        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
+          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
+          <input type="hidden" name="duration" value="yearly">
+          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_yearly_basis }}">
+        </form>
+
+      </div>
+    </div>
+
+   </section>
+</div>
+
+
+<script type="text/javascript">
+       function openNav() {
+       document.getElementById("mySidenav").style.display = "block";
+       document.getElementById("box1").style.top = "400px";
+       document.getElementById("box1").style.border = "1px solid #fff";
+       document.getElementById("box1").style.transform = "scale(1)";
+       document.getElementById("row").style.height = "800px";
+
+       // document.getElementById("box1").style.display = "block";
+
+    }
+
+    function closeNav() {
+       document.getElementById("mySidenav").style.display = "none";
+       document.getElementById("box1").style.transform = "scale(1)";
+       document.getElementById("box1").style.transition = "all 0.7s ease";
+       document.getElementById("box1").style.border = "none";
+    }
+
+    function clean(data, genre_array)
+    {
+      var ret_dict = {
+        VideoPacks: []
+      }
+      console.log(data.length)
+      data.forEach(function(ele, idx) {
+        if(ele.type === "video_pack")
+        {
+          ret_dict.VideoPacks.push(ele)
+        }
+        else
+        {
+          if(ret_dict[genre_array[ele.video.genre_foreign_key_id]])
+          {
+           ret_dict[genre_array[ele.video.genre_foreign_key_id]].push(ele)
+          }
+          else
+          {
+           ret_dict[genre_array[ele.video.genre_foreign_key_id]] = [ele]
+          }
+        }
+      })
+      return ret_dict
+    }
+
+    function createSection(data, mainDiv, sectionTitle)
+    {
+      
+      var str = `<section> <h1 class="sectionTitle">${sectionTitle}</h1>
+                    <div class="examples">
+                      <ul class="img-list">`
+      data.forEach(function(video) {
+        var url_image = "http://placehold.it/280x150";
+        try {
+          var video_id = video.video? video.video.video_url : video.video_pack.videos[0].video_url  
+          var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
+          url_image = thumb
+        }
+        catch(e)
+        {
+          console.log(e)
+        }
+
+        var isVideoPack = video.video? false: true;
+
+        console.log(video.content_foreign_key_id);
+        str += `<li class="image">
+            <a href="/jumla/show_content/${isVideoPack?"video_pack":"video"}/${video.content_foreign_key_id}">
+               <img src="${url_image}" width="280" height="150" />
+               <span class="text-content"><span>${video.video? video.video.video_title:video.video_pack.name}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
+            </a>
+         </li>`
+      })
+     str += `
+              </ul>
+            </div>
+          </section>`
+    mainDiv.innerHTML += str;
+    }
+
+    function show_content(json_data)
+    {
+      var data = json_data.data;
+      // console.log(json_data)
+      data = clean(data, json_data.generes_array)
+      var mainDiv = document.getElementById("main-section-container")
+      mainDiv.innerHTML = ""
+      Object.keys(data).forEach(function(ele){
+        createSection(data[ele], mainDiv, ele)
+      })
+    }
+
+    window.onload = function() {
+      console.log("loaded")
+    }
+
+    var Youtube = (function () {
+      'use strict';
+
+      var video, results;
+
+      var getThumb = function (url, size) {
+          if (url === null) {
+              return '';
+          }
+          size    = (size === null) ? 'big' : size;
+          results = url.match('[\\?&]v=([^&#]*)');
+          video   = (results === null) ? url : results[1];
+
+          if (size === 'small') {
+              return 'http://img.youtube.com/vi/' + video + '/2.jpg';
+          }
+          return 'http://img.youtube.com/vi/' + video + '/0.jpg';
+      };
+
+      return {
+          thumb: getThumb
+      };
+    }());
+
+
+
+</script>
+
+
