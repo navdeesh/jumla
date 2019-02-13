@@ -178,7 +178,10 @@
 <header>
 <p style="display: inline-block;">JUMLA</p>
 <div style="display: inline-block; text-align: right; padding-left: 50%">
-  <form action="/jumla/do_logout">
+  <form action="/jumla/my_subscriptions_page" style="display: inline-block;">
+    <input type="submit" name="my_subscriptions_page" value="MY Subsciptions" style="cursor: pointer;">
+  </form>
+  <form action="/jumla/do_logout" style="display: inline-block;">
     <input type="submit" name="LOGOUT" value="LOGOUT" style="cursor: pointer;">
   </form>
 </div>
@@ -194,47 +197,15 @@
   
     </div>
 
-    <h4 style="color: white" class="sectionTitle">Subscribe to this {{ back_data.type }} only @</h4>
-    <div style="color: white">
-      <div>
-        Daily Subscription: {{ back_data.pricing_daily_basis }}
-        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
-          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
-          <input type="hidden" name="duration" value="daily">
-          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_daily_basis }}">
-        </form>
+    <div id="iframes">
 
-      </div>
-      <br>
-      <div>
-        Weekly Subscription: {{ back_data.pricing_weekly_basis }}
-        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
-          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
-          <input type="hidden" name="duration" value="weekly">
-          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_weekly_basis }}">
-        </form>
-        
-      </div>
-<br>
-      <div>
-        Monthly Subscription: {{ back_data.pricing_monthly_basis }}
-        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
-          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
-          <input type="hidden" name="duration" value="monthly">
-          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_monthly_basis }}">
-        </form>
+      <iframe width="560" height="315" frameborder="" id="iframmmerrr"></iframe>
+    </div>
+    
 
-      </div>
-<br>
-      <div>
-        Yearly Subscription: {{ back_data.pricing_yearly_basis }}
-        &nbsp;&nbsp;<form style="display: inline-block;" action="/jumla/subscribe" method="POST">
-          <input type="hidden" name="content_id" value="{{ back_data.content_foreign_key_id }}">
-          <input type="hidden" name="duration" value="yearly">
-          <input style="cursor: pointer;" type="submit" name="BUY" value="BUY NOW@ {{ back_data.pricing_yearly_basis }}">
-        </form>
-
-      </div>
+    <h4 style="color: white" class="sectionTitle">Add ons Available for your pack </h4>
+    <div style="color: white" id="add-ons-div">
+      
     </div>
 
    </section>
@@ -286,55 +257,85 @@
       return ret_dict
     }
 
-    function createSection(data, mainDiv, sectionTitle)
+    function createSection(data, mainDiv)
     {
+      console.log(data)
+      var duration = data.addon_duration
+      var amount = data.addon_price
+      if(data.content.type == "video_pack")
+      {
+        var video_id = data.content.video_pack.videos[0].video_url
+        var title = data.content.video_pack.name
+      }
+      else
+      {
+        var video_id = data.content.video.video_url
+        var title = data.content.video.video_title
+      }
+
+      var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
+
+      var str = `
+        <a href="/jumla/subscribe_to_add_on/${data.addons_content_id}/${duration}/${amount}" style="display: block; margin-top: 24px">
+           <img src="${thumb}" width="280" height="150">
+           <span class="text-content"><span>${title}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
+           <div style="display: inline-block; height: 150; vertical-align: top; color: white; margin-left: 16px">
+            <div style="font-weight: 600; width:700px">${title}</div>
+            <br>
+            <div style="font-weight: 400; font-size: 13px">Will be subscribed for ${duration} duration</div>
+            <br>
+            <div style="font-weight: 400; font-size: 13px">Amount to be paid will be: ₹ ${amount}</div>
+          </div>
+        </a>
+      `
+
+      mainDiv.innerHTML += str;
       
-      var str = `<section> <h1 class="sectionTitle">${sectionTitle}</h1>
-                    <div class="examples">
-                      <ul class="img-list">`
-      data.forEach(function(video) {
-        var url_image = "http://placehold.it/280x150";
-        try {
-          var video_id = video.video? video.video.video_url : video.video_pack.videos[0].video_url  
-          var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
-          url_image = thumb
-        }
-        catch(e)
-        {
-          console.log(e)
-        }
-
-        var isVideoPack = video.video? false: true;
-
-        console.log(video.content_foreign_key_id);
-        str += `<li class="image">
-            <a href="/jumla/show_content/${isVideoPack?"video_pack":"video"}/${video.content_foreign_key_id}">
-               <img src="${url_image}" width="280" height="150" />
-               <span class="text-content"><span>${video.video? video.video.video_title:video.video_pack.name}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
-            </a>
-         </li>`
-      })
-     str += `
-              </ul>
-            </div>
-          </section>`
-    mainDiv.innerHTML += str;
     }
 
     function show_content(json_data)
     {
       var data = json_data.data;
-      // console.log(json_data)
-      data = clean(data, json_data.generes_array)
-      var mainDiv = document.getElementById("main-section-container")
+      var mainDiv = document.getElementById("add-ons-div")
       mainDiv.innerHTML = ""
-      Object.keys(data).forEach(function(ele){
-        createSection(data[ele], mainDiv, ele)
+      data.forEach(function(ele){
+        createSection(ele, mainDiv)
       })
     }
 
     window.onload = function() {
-      console.log("loaded")
+      // var img = document.getElementById('imggg')
+      var video_id = `{{ back_data.video.video_url }}`
+      if(!video_id)
+      {
+        video_id = `{{ back_data.main_video_url }}`
+      }
+      // img.src = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big'); 
+      document.getElementById('iframmmerrr').src="https://www.youtube.com/embed/"+video_id+"?&controls=1&;showinfo=0&modestbranding=1&autoplay=0&rel=0"
+
+
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4) {
+          if(xhr.status === 200) { 
+            var json_data = JSON.parse(xhr.responseText);
+            show_content(json_data)
+          } else {
+            alert("status of get_content is not 200")
+          }
+        }
+        else {
+          console.log("readyState -> ", xhr.readyState)
+        }
+      }
+
+      var content_id=`{{ back_data.content_foreign_key_id }}`
+      var duration=`{{ back_data.duration }}`
+
+      xhr.open('GET', '/jumla/get_add_ons/'+content_id+"/"+duration);
+      xhr.send();
+
+
     }
 
     var Youtube = (function () {

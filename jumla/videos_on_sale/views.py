@@ -90,22 +90,24 @@ def show_content(request, **kwargs):
             ret_dict = prices.__dict__
             del ret_dict['_state']
             if(video_or_videopack == "video_pack"):
-                video_pack_id = content_id
+                video_pack_id = ContentEntity.objects.get(pk=content_id).__dict__['video_pack_foreign_key_id']
                 video_pack = VideoPackEntity.objects.get(pk=video_pack_id)
                 videos_array = get_videos_array(video_pack_id)
                 ret_dict['type'] = 'video_pack'
                 ret_dict['video_pack'] = {
-                    'name': video_pack.video_pack_name,
+                    'name': video_pack.video_pack_name+" - Video Pack",
                     'videos': videos_array
                 }
+                ret_dict['main_video_url'] = ret_dict['video_pack']['videos'][0]['video_url']
             else:
-                video_id = content_id
+                video_id = ContentEntity.objects.get(pk=content_id).__dict__['video_foreign_key_id']
                 video = VideoEntity.objects.get(pk=video_id).__dict__
                 del video['_state']
                 ret_dict['type'] = 'video'
                 ret_dict['video'] = video
             for key, value in ret_dict.items() :
                 print (key)
+            print()
             fp = open('templates/show_content.html')
             t = Template(fp.read())
             fp.close()
@@ -410,26 +412,30 @@ def view_content(request, **kwargs):
         if "logged_in" in request.session:
             video_or_videopack = kwargs['video_or_videopack']
             content_id = kwargs['content_id']
+            duration = kwargs['duration']
             user_id = int(request.session['user_id'])
-            prices = Pricing.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id).first()
+            prices = Subscribed.objects.filter(user_foreign_key=user_id).filter(content_foreign_key=content_id).first()
             ret_dict = prices.__dict__
             del ret_dict['_state']
             if(video_or_videopack == "video_pack"):
-                video_pack_id = content_id
+                video_pack_id = ContentEntity.objects.get(pk=content_id).__dict__['video_pack_foreign_key_id']
                 video_pack = VideoPackEntity.objects.get(pk=video_pack_id)
                 videos_array = get_videos_array(video_pack_id)
                 ret_dict['type'] = 'video_pack'
                 ret_dict['video_pack'] = {
-                    'name': video_pack.video_pack_name,
+                    'name': video_pack.video_pack_name+" - Video Pack",
                     'videos': videos_array
                 }
+                ret_dict['main_video_url'] = ret_dict['video_pack']['videos'][0]['video_url']
             else:
-                video_id = content_id
+                video_id = ContentEntity.objects.get(pk=content_id).__dict__['video_foreign_key_id']
                 video = VideoEntity.objects.get(pk=video_id).__dict__
                 del video['_state']
                 ret_dict['type'] = 'video'
                 ret_dict['video'] = video
-            for key, value in ret_dict.items() :
+            ret_dict['duration'] = duration
+            ret_dict['subscribed_content_id'] = content_id
+            for key, value in ret_dict.items():
                 print (key)
             fp = open('templates/view_content.html')
             t = Template(fp.read())
@@ -440,6 +446,71 @@ def view_content(request, **kwargs):
             return redirect("/jumla/")
     else:
         return redirect("/jumla/")
+
+
+
+
+def subscribe_to_add_on(request, **kwargs):
+    if request.method == "GET":
+        
+        if "logged_in" in request.session:
+            
+            user_id = int(request.session['user_id'])
+            
+            try:
+                content_id = kwargs['id']
+                duration = kwargs['duration']
+                subscribed_amount = kwargs['amount']
+                Subscribed(
+                    user_foreign_key = Users.objects.get(pk=user_id),
+                    content_foreign_key = ContentEntity.objects.get(pk=content_id),
+                    subscribed_amount = subscribed_amount,
+                    subscribed_duration = duration
+                ).save()
+                
+                return redirect("/jumla/my_subscriptions_page")
+            
+            except ValueError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'JSON parse error'
+                }, status=400)
+            
+            except KeyError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please supply required field in request body'
+                }, status=401)
+
+            except ObjectDoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'User does not exists'
+                }, status=401)
+            
+            except:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Unknown error'
+                }, status=500)
+        
+        else:
+            
+            return JsonResponse({
+                'success': False,
+                'message': 'You need to login first'
+            }, status=401)
+    
+    else:
+        
+        return JsonResponse({
+            'success': False,
+            'message': 'Only GET requests allowed'
+        }, status=405)
+
+
+
+
 
 def is_subscription_expired(self):
     if(str.lower(self['subscribed_duration'])== "daily" and (self['subscribed_start_date']) < utc.localize(datetime.now()) < ((self['subscribed_start_date']) + dtt.timedelta(days=1) )):

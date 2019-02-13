@@ -178,7 +178,10 @@
 <header>
 <p style="display: inline-block;">JUMLA</p>
 <div style="display: inline-block; text-align: right; padding-left: 50%">
-  <form action="/jumla/do_logout">
+  <form action="/jumla/my_subscriptions_page" style="display: inline-block;">
+    <input type="submit" name="my_subscriptions_page" value="MY Subsciptions" style="cursor: pointer;">
+  </form>
+  <form action="/jumla/do_logout" style="display: inline-block;">
     <input type="submit" name="LOGOUT" value="LOGOUT" style="cursor: pointer;">
   </form>
 </div>
@@ -195,14 +198,11 @@
     </div>
 
     <a href="#" style="display: block; margin-top: 24px">
-       <img src="#" width="280" height="150" id="img" />
-       <span class="text-content"><span>${ele.content.video.video_title}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
+       <img src="#" width="280" height="150" id="imggg" />
+       <span class="text-content"><span>{{ back_data.video.video_title }} {{ back_data.video_pack.name }}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
        <div style="display: inline-block; height: 150; vertical-align: top; color: white; margin-left: 16px">
-        <div style="font-weight: 600">T${ele.content.video.video_title}</div>
+        <div style="font-weight: 600">{{ back_data.video.video_title }} {{ back_data.video_pack.name }}</div>
         <br>
-        <div style="font-weight: 400; font-size: 13px">${ele.subscribed_duration} Subscribed</div>
-        <br>
-        <div style="font-weight: 400; font-size: 13px">Amount Paid: ₹ ${ele.subscribed_amount}</div>
       </div>
     </a>
 
@@ -301,14 +301,14 @@
     function createSection(data, mainDiv, sectionTitle)
     {
       
-      var str = `<section> <h1 class="sectionTitle">${sectionTitle}</h1>
+      mainDiv.innerHTML += `<section> <h1 class="sectionTitle">${sectionTitle}</h1>
                     <div class="examples">
                       <ul class="img-list">`
       data.forEach(function(video) {
-        var url_image = "http://placehold.it/280x150";
+        let url_image = "http://placehold.it/280x150";
         try {
-          var video_id = video.video? video.video.video_url : video.video_pack.videos[0].video_url  
-          var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
+          let video_id = video.video? video.video.video_url : video.video_pack.videos[0].video_url  
+          let thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
           url_image = thumb
         }
         catch(e)
@@ -316,21 +316,20 @@
           console.log(e)
         }
 
-        var isVideoPack = video.video? false: true;
+        let isVideoPack = video.video? false: true;
 
-        console.log(video.content_foreign_key_id);
-        str += `<li class="image">
+        mainDiv.innerHTML += `<li class="image">
             <a href="/jumla/show_content/${isVideoPack?"video_pack":"video"}/${video.content_foreign_key_id}">
                <img src="${url_image}" width="280" height="150" />
                <span class="text-content"><span>${video.video? video.video.video_title:video.video_pack.name}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
             </a>
          </li>`
       })
-     str += `
-              </ul>
-            </div>
-          </section>`
-    mainDiv.innerHTML += str;
+       mainDiv.innerHTML += `
+                </ul>
+              </div>
+            </section>`
+      
     }
 
     function show_content(json_data)
@@ -346,7 +345,13 @@
     }
 
     window.onload = function() {
-      console.log("loaded")
+      var img = document.getElementById('imggg')
+      var video_id = `{{ back_data.video.video_url }}`
+      if(!video_id)
+      {
+        video_id = `{{ back_data.main_video_url }}`
+      }
+      img.src = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big'); 
     }
 
     var Youtube = (function () {

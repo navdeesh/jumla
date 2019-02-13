@@ -178,7 +178,10 @@
 <header>
 <p style="display: inline-block;">JUMLA</p>
 <div style="display: inline-block; text-align: right; padding-left: 50%">
-  <form action="/jumla/do_logout">
+  <form action="/jumla/my_subscriptions_page" style="display: inline-block;">
+    <input type="submit" name="my_subscriptions_page" value="MY Subsciptions" style="cursor: pointer;">
+  </form>
+  <form action="/jumla/do_logout" style="display: inline-block;">
     <input type="submit" name="LOGOUT" value="LOGOUT" style="cursor: pointer;">
   </form>
 </div>
@@ -254,7 +257,7 @@
       {
         var video_id = ele.content.video_pack.videos[0].video_url
         var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
-        var url = noURL?"#":`/jumla/view_content/video_pack/${ele.content_foreign_key_id}`
+        var url = noURL?"#":`/jumla/view_content/video_pack/${ele.content_foreign_key_id}/${ele.subscribed_duration}`
 
         var str = `<a href="${url}" style="display: block; margin-top: 24px">
            <img src="${thumb}" width="280" height="150" />
@@ -273,13 +276,13 @@
         var video_id = ele.content.video.video_url
         var thumb = Youtube.thumb('http://www.youtube.com/watch?v='+video_id, 'big');
 
-        var url = noURL?"#":`/jumla/view_content/video_pack/${ele.content_foreign_key_id}`
+        var url = noURL?"#":`/jumla/view_content/video/${ele.content_foreign_key_id}/${ele.subscribed_duration}`
 
         var str = `<a href="${url}" style="display: block; margin-top: 24px">
            <img src="${thumb}" width="280" height="150" />
            <span class="text-content"><span>${ele.content.video.video_title}<br><br><i class="fa fa-4x  fa-play-circle-o"></i><br><br><i class="fa fa-chevron-down" aria-hidden="true"></i></span></span>
            <div style="display: inline-block; height: 150; vertical-align: top; color: white; margin-left: 16px">
-            <div style="font-weight: 600">T${ele.content.video.video_title}</div>
+            <div style="font-weight: 600; width: 700px">T${ele.content.video.video_title}</div>
             <br>
             <div style="font-weight: 400; font-size: 13px">${ele.subscribed_duration} Subscribed</div>
             <br>
